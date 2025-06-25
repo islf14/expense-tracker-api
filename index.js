@@ -2,7 +2,7 @@ import express, { json } from 'express'
 import cookieParser from 'cookie-parser'
 import 'dotenv/config'
 import { loginRouter, registerRouter } from './routes/user.route.js'
-import { expenseRouter } from './routes/expense.route.js'
+import { createExpenseRouter } from './routes/expense.route.js'
 
 const app = express()
 const port = process.env.PORT ?? 3000
@@ -12,7 +12,7 @@ app.use(cookieParser())
 
 app.use('/register', registerRouter)
 app.use('/login', loginRouter)
-app.use('/expense', expenseRouter)
+app.use('/expense', createExpenseRouter())
 app.get('/', (req, res) => {
   res.json('Welcome')
 })

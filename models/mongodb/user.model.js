@@ -7,7 +7,7 @@ async function connect() {
     const client = connection()
     await client.connect()
     const database = client.db('expenses')
-    return database.collection('expense')
+    return database.collection('user')
   } catch (error) {
     console.log({ error: error.message })
     console.error('Error connecting to the database')
@@ -38,5 +38,16 @@ export class UserModel {
     return insertedId
   }
 
-  static login() {}
+  static async login({ input }) {
+    const { email, password } = input
+    const db = await connect()
+    // find user
+    const user = await db.findOne({ email })
+    if (!user) throw new Error('user not found')
+    const valid = await bcrypt.compare(password, user.password)
+    if (!valid) throw new Error('password invalid')
+    // return all except password
+    const { password: _, ...showUser } = user
+    return showUser
+  }
 }
