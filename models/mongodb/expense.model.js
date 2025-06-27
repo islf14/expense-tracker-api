@@ -24,11 +24,34 @@ export class ExpenseModel {
     }
   }
 
-  static async getAll({ userId, pageNumber, nPerPage }) {
+  static async getAll({ userId, pageNumber, nPerPage, dateStart, dateEnd }) {
     const db = await connect()
+    //// verify dateStart and dateEnd
+    let query = {
+      user_id: userId
+    }
+    if (!isNaN(dateStart) && isNaN(dateEnd)) {
+      query = {
+        user_id: userId,
+        createdAt: { $gte: dateStart }
+      }
+    }
+    if (isNaN(dateStart) && !isNaN(dateEnd)) {
+      query = {
+        user_id: userId,
+        createdAt: { $lte: dateEnd }
+      }
+    }
+    if (!isNaN(dateStart) && !isNaN(dateEnd)) {
+      query = {
+        user_id: userId,
+        createdAt: { $gte: dateStart, $lte: dateEnd }
+      }
+    }
+    /// get documents
     try {
       const data = await db
-        .find({ user_id: userId })
+        .find(query)
         .sort({ createdAt: 1 })
         .skip(pageNumber > 1 ? (pageNumber - 1) * nPerPage : 0)
         .limit(nPerPage)
